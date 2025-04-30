@@ -1,0 +1,6 @@
+[submodule "SDFBooleanEngine/libs/glm"]
+	path = SDFBooleanEngine/libs/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "SDFBooleanEngine/libs/imgui"]
+	path = SDFBooleanEngine/libs/imgui
+	url = https://github.com/ocornut/imgui.git
