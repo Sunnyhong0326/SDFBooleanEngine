@@ -1,150 +1,167 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="來源檔案">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="標頭檔">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="資源檔">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="標頭檔\sdf">
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{81ee6677-df47-4957-adda-50b00170ddc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Include\sdf">
       <UniqueIdentifier>{b18b29b4-8cef-42aa-829f-ace0f90b5d47}</UniqueIdentifier>
     </Filter>
-    <Filter Include="標頭檔\rendering">
+    <Filter Include="Include\rendering">
       <UniqueIdentifier>{41273692-4d76-4273-94c3-15bfc3c0a7db}</UniqueIdentifier>
     </Filter>
-    <Filter Include="標頭檔\core">
+    <Filter Include="Include\core">
       <UniqueIdentifier>{1ee05a04-573d-457b-aaa0-bdc0a05c582d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="來源檔案\core">
-      <UniqueIdentifier>{16af6f35-1693-4601-b99c-458575332fd2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="來源檔案\rendering">
-      <UniqueIdentifier>{9973cccf-8f94-4a9a-a95c-e4d4f5917e4d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="來源檔案\sdf">
-      <UniqueIdentifier>{b8ba21cb-9844-48e8-9fce-c84e8b11e968}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="標頭檔\libs">
+    <Filter Include="Include\libs">
       <UniqueIdentifier>{f51c2798-f422-4080-a40c-521e59a314ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="標頭檔\libs\imgui">
+    <Filter Include="Include\libs\imgui">
       <UniqueIdentifier>{24544950-a3bc-4581-9e6d-bd79a2df30aa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="來源檔案\libs">
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source\core">
+      <UniqueIdentifier>{16af6f35-1693-4601-b99c-458575332fd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\rendering">
+      <UniqueIdentifier>{9973cccf-8f94-4a9a-a95c-e4d4f5917e4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\sdf">
+      <UniqueIdentifier>{b8ba21cb-9844-48e8-9fce-c84e8b11e968}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\libs">
       <UniqueIdentifier>{b04e5430-3377-48ab-b5c6-b4855e6b290a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="來源檔案\libs\imgui">
+    <Filter Include="Source\libs\imgui">
       <UniqueIdentifier>{0731e704-52cd-4ca7-8c06-701398dfea79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\libs\glad">
+      <UniqueIdentifier>{446f202c-4e45-40b7-8a6a-c86c9458c97d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\sdf\BooleanOps.hpp">
-      <Filter>標頭檔\sdf</Filter>
+      <Filter>Include\sdf</Filter>
     </ClInclude>
     <ClInclude Include="include\sdf\Primitives.hpp">
-      <Filter>標頭檔\sdf</Filter>
+      <Filter>Include\sdf</Filter>
     </ClInclude>
     <ClInclude Include="include\sdf\SDF.hpp">
-      <Filter>標頭檔\sdf</Filter>
+      <Filter>Include\sdf</Filter>
     </ClInclude>
     <ClInclude Include="include\sdf\Transform.hpp">
-      <Filter>標頭檔\sdf</Filter>
+      <Filter>Include\sdf</Filter>
     </ClInclude>
     <ClInclude Include="include\rendering\Camera.hpp">
-      <Filter>標頭檔\rendering</Filter>
+      <Filter>Include\rendering</Filter>
     </ClInclude>
     <ClInclude Include="include\rendering\Shader.hpp">
-      <Filter>標頭檔\rendering</Filter>
+      <Filter>Include\rendering</Filter>
     </ClInclude>
     <ClInclude Include="include\core\Evaluator.hpp">
-      <Filter>標頭檔\core</Filter>
+      <Filter>Include\core</Filter>
     </ClInclude>
     <ClInclude Include="include\core\SceneNode.hpp">
-      <Filter>標頭檔\core</Filter>
+      <Filter>Include\core</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\imconfig.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\imgui.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\imgui_internal.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\imstb_rectpack.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\imstb_textedit.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\imstb_truetype.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\backends\imgui_impl_glfw.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="libs\imgui\backends\imgui_impl_opengl3.h">
-      <Filter>標頭檔\libs\imgui</Filter>
+      <Filter>Include\libs\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Evaluator.cpp">
-      <Filter>來源檔案\core</Filter>
+      <Filter>Source\core</Filter>
     </ClCompile>
     <ClCompile Include="src\core\SceneNode.cpp">
-      <Filter>來源檔案\core</Filter>
+      <Filter>Source\core</Filter>
     </ClCompile>
     <ClCompile Include="src\rendering\Camera.cpp">
-      <Filter>來源檔案\rendering</Filter>
+      <Filter>Source\rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\rendering\Shader.cpp">
-      <Filter>來源檔案\rendering</Filter>
+      <Filter>Source\rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\sdf\BooleanOps.cpp">
-      <Filter>來源檔案\sdf</Filter>
+      <Filter>Source\sdf</Filter>
     </ClCompile>
     <ClCompile Include="src\sdf\Primitives.cpp">
-      <Filter>來源檔案\sdf</Filter>
+      <Filter>Source\sdf</Filter>
     </ClCompile>
     <ClCompile Include="src\sdf\SDF.cpp">
-      <Filter>來源檔案\sdf</Filter>
+      <Filter>Source\sdf</Filter>
     </ClCompile>
     <ClCompile Include="src\sdf\Transform.cpp">
-      <Filter>來源檔案\sdf</Filter>
+      <Filter>Source\sdf</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>來源檔案</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\imgui.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\imgui_demo.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\imgui_draw.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\imgui_tables.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\imgui_widgets.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\backends\imgui_impl_glfw.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\backends\imgui_impl_opengl3.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
     <ClCompile Include="libs\imgui\backends\imgui_impl_win32.cpp">
-      <Filter>來源檔案\libs\imgui</Filter>
+      <Filter>Source\libs\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="libs\glad\src\glad.c">
+      <Filter>Source\libs\glad</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\raymarch.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\raymarch.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
