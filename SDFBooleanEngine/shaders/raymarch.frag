@@ -1,8 +1,11 @@
 #version 330 core
+
 out vec4 FragColor;
 in vec2 fragCoord;
 
+uniform mat4 invViewProj;
 uniform vec2 iResolution;
+uniform vec3 camPos;
 
 float sdf_sphere(vec3 p, float r) {
     return length(p) - r;
@@ -29,27 +32,27 @@ vec3 getNormal(vec3 p) {
 }
 
 void main() {
-    vec2 uv = fragCoord;
-    vec2 res = vec2(800.0, 600.0); // hardcoded resolution
-    vec2 p = (uv * 0.5 + 0.5) * res;
-    vec2 iuv = (gl_FragCoord.xy / res) * 2.0 - 1.0;
-    vec3 ro = vec3(0.0, 0.0, 2.0);
-    vec3 rd = normalize(vec3(iuv, -1.5));
+    vec2 uv = (gl_FragCoord.xy / iResolution) * 2.0 - 1.0;
+    vec4 ndc = vec4(uv, -1.0, 1.0); // z = -1 for near plane
+    vec4 world = invViewProj * ndc;
+    world /= world.w;
 
-    float t = 0.0;
-    float d;
-    for (int i = 0; i < 128; ++i) {
-        vec3 pos = ro + t * rd;
-        d = sceneSDF(pos);
+    vec3 ro = camPos;
+    vec3 rd = normalize(world.xyz - camPos);
+
+    float t = 0.0, d;
+    for (int i = 0; i < 128; i++) {
+        vec3 p = ro + rd * t;
+        d = sceneSDF(p);
         if (d < 0.001) break;
         t += d;
-        if (t > 20.0) break;
+        if (t > 100.0) break;
     }
 
-    vec3 col = vec3(0);
+    vec3 col = vec3(0.0);
     if (d < 0.001) {
-        vec3 pos = ro + t * rd;
-        vec3 n = getNormal(pos);
+        vec3 p = ro + rd * t;
+        vec3 n = getNormal(p);
         col = 0.5 + 0.5 * n;
     }
 
