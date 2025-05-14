@@ -17,8 +17,8 @@ float sdf_box(vec3 p, vec3 b) {
 }
 
 float sceneSDF(vec3 p) {
-    float d1 = sdf_sphere(p - vec3(0, 0, -3), 1.0);
-    float d2 = sdf_box(p - vec3(1.5, 0, -3), vec3(0.8));
+    float d1 = sdf_sphere(p - vec3(0, 0, 0), 1.0);
+    float d2 = sdf_box(p - vec3(1.5, 0, 0), vec3(0.8));
     return min(d1, d2); // union
 }
 

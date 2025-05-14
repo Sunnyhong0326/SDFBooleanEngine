@@ -2,30 +2,72 @@
 #include <GLFW/glfw3.h>
 #include "rendering/Shader.hpp"
 #include "rendering/Camera.hpp"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
-Camera cam(glm::vec3(0, 0, 3));
+Camera cam(glm::vec3(0, 0, -6));
 bool keys[1024];
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
+bool leftMousePressed = false;
+bool rightMousePressed = false;
+float windowWidth = 800.f, windowHeight=600.f;
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+    windowWidth = static_cast<float> (width);
+    windowHeight = static_cast<float> (height);
+    float aspect = static_cast<float>(width) / static_cast<float>(height);
+    cam.updateAspectRatio(aspect);
 }
-// Input callbacks
-void key_callback(GLFWwindow* w, int key, int scancode, int action, int mods) {
+
+void keyCallback(GLFWwindow* w, int key, int scancode, int action, int mods) {
     if (key >= 0 && key < 1024) {
         keys[key] = action != GLFW_RELEASE;
     }
 }
 
-void mouse_callback(GLFWwindow* w, double xpos, double ypos) {
-    if (firstMouse) { lastX = xpos; lastY = ypos; firstMouse = false; }
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+            leftMousePressed = true;
+        if (button == GLFW_MOUSE_BUTTON_RIGHT)
+            rightMousePressed = true;
+        firstMouse = true; // reset to avoid jump
+    }
+    else if (action == GLFW_RELEASE) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+            leftMousePressed = false;
+        if (button == GLFW_MOUSE_BUTTON_RIGHT)
+            rightMousePressed = false;
+    }
+}
+
+void mouseCallback(GLFWwindow* w, double xpos, double ypos) {
+    if (firstMouse) { 
+        lastX = xpos; 
+        lastY = ypos; 
+        firstMouse = false;
+        return;
+    }
     float dx = xpos - lastX;
     float dy = ypos - lastY;
     lastX = xpos;
     lastY = ypos;
-    cam.processMouse(dx, dy);
+    if (leftMousePressed)
+        cam.processMouseDrag(dx, dy);
+    if (rightMousePressed) {
+        cam.processPan(dx, dy);
+    }
+
+    //cam.processMouse(dx, dy, leftMousePressed, rightMousePressed);
 }
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    cam.processScroll((float)yoffset);  // Positive yoffset = zoom in
+}
+
 
 int main() {
     glfwInit();
@@ -35,9 +77,11 @@ int main() {
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "SDF Raymarching", NULL, NULL);
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetKeyCallback(window, keyCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -59,30 +103,50 @@ int main() {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui::StyleColorsDark(); // or Light()
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
     float lastFrame = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
+        // Start new ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // Draw UI
+        ImGui::Begin("Scene");
+        ImGui::End();
+
         float time = glfwGetTime();
         float dt = time - lastFrame;
         lastFrame = time;
-
+        //cam.changeMode(mode);
         cam.processKeyboard(keys, dt);
 
         shader.use();
         glUniform3fv(glGetUniformLocation(shader.ID, "camPos"), 1, &cam.position[0]);
         glm::mat4 invVP = cam.getInverseViewProj();
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "invViewProj"), 1, GL_FALSE, &invVP[0][0]);
-        glUniform2f(glGetUniformLocation(shader.ID, "iResolution"), 800.0f, 600.0f);
+        glUniform2f(glGetUniformLocation(shader.ID, "iResolution"), windowWidth, windowHeight);
 
-        // Send camera basis for ray direction in fragment shader
-        /*glUniform3fv(glGetUniformLocation(shader.ID, "camFront"), 1, &cam.getRayDir(0, 0)[0]);
-        glUniform3fv(glGetUniformLocation(shader.ID, "camRight"), 1, &cam.getRayDir(1, 0)[0]);
-        glUniform3fv(glGetUniformLocation(shader.ID, "camUp"), 1, &cam.getRayDir(0, 1)[0]);*/
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        // Render ImGui on top
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }
