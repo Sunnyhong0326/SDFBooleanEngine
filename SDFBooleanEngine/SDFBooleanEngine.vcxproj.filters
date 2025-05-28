@@ -51,16 +51,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\sdf\BooleanOps.hpp">
-      <Filter>Include\sdf</Filter>
-    </ClInclude>
-    <ClInclude Include="include\sdf\Primitives.hpp">
-      <Filter>Include\sdf</Filter>
-    </ClInclude>
-    <ClInclude Include="include\sdf\SDF.hpp">
-      <Filter>Include\sdf</Filter>
-    </ClInclude>
-    <ClInclude Include="include\sdf\Transform.hpp">
+    <ClInclude Include="include\sdf\SDFNode.hpp">
       <Filter>Include\sdf</Filter>
     </ClInclude>
     <ClInclude Include="include\rendering\Camera.hpp">
@@ -99,6 +90,15 @@
     <ClInclude Include="libs\imgui\backends\imgui_impl_opengl3.h">
       <Filter>Include\libs\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="include\sdf\SDFBuilder.hpp">
+      <Filter>Include\sdf</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sdf\SDFLoader.hpp">
+      <Filter>Include\sdf</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sdf\SDFSceneGL.hpp">
+      <Filter>Include\sdf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Evaluator.cpp">
@@ -112,18 +112,6 @@
     </ClCompile>
     <ClCompile Include="src\rendering\Shader.cpp">
       <Filter>Source\rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sdf\BooleanOps.cpp">
-      <Filter>Source\sdf</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sdf\Primitives.cpp">
-      <Filter>Source\sdf</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sdf\SDF.cpp">
-      <Filter>Source\sdf</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sdf\Transform.cpp">
-      <Filter>Source\sdf</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source</Filter>
@@ -154,6 +142,12 @@
     </ClCompile>
     <ClCompile Include="libs\glad\src\glad.c">
       <Filter>Source\libs\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdf\SDFSceneGL.cpp">
+      <Filter>Source\sdf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdf\SDFBuilder.cpp">
+      <Filter>Source\sdf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

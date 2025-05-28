@@ -2,11 +2,16 @@
 #include <GLFW/glfw3.h>
 #include "rendering/Shader.hpp"
 #include "rendering/Camera.hpp"
+#include "sdf/SDFSceneGL.hpp"
+#include "sdf/SDFBuilder.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include "sdf/SDFLoader.hpp"
 
-Camera cam(glm::vec3(0, 0, -6));
+Camera cam;
 bool keys[1024];
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -71,8 +76,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 
 int main() {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "SDF Raymarching", NULL, NULL);
@@ -83,25 +88,64 @@ int main() {
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "GLAD init failed!" << std::endl;
+        return -1;
+    }
+    // SDFBuilder builder;
+
+    // // House body
+    // int body = builder.addBox(glm::vec3(0.0f, 0.5f, 0.0f), 1.0f, glm::vec3(0.8, 0.5, 0.3));
+
+    // // Door
+    // int door = builder.addBox(glm::vec3(0.0f, 0.0f, 1.01f), 0.25f, glm::vec3(0.3, 0.2, 0.1));
+    // int houseWithDoor = builder.subtract(body, door, glm::vec3(0.8, 0.5, 0.3));
+
+    // // Windows
+    // int window1 = builder.addBox(glm::vec3(-0.4f, 0.5f, 1.01f), 0.15f, glm::vec3(0.2, 0.4, 1.0));
+    // int window2 = builder.addBox(glm::vec3(0.4f, 0.5f, 1.01f), 0.15f, glm::vec3(0.2, 0.4, 1.0));
+    // houseWithDoor = builder.subtract(houseWithDoor, window1, glm::vec3(0.8, 0.5, 0.3));
+    // houseWithDoor = builder.subtract(houseWithDoor, window2, glm::vec3(0.8, 0.5, 0.3));
+
+    // // Slanted Roof using triangle prism
+    // int roof = builder.addTriPrism(glm::vec3(0.0f, 1.5f, 0.0f), 2.0f, 1.0f, glm::vec3(0.5, 0.1, 0.1));
+
+    // // Chimney
+    // int chimney = builder.addBox(glm::vec3(0.5f, 2.0f, 0.2f), 0.15f, glm::vec3(0.2, 0.1, 0.1));
+
+    // // Steps
+    // int step1 = builder.addBox(glm::vec3(0.0f, -0.6f, 1.2f), 0.3f, glm::vec3(0.5, 0.4, 0.3));
+    // int step2 = builder.addBox(glm::vec3(0.0f, -0.4f, 1.1f), 0.25f, glm::vec3(0.5, 0.4, 0.3));
+    // int steps = builder.unionOp(step1, step2, glm::vec3(0.5, 0.4, 0.3));
+
+    // // Fence pillars
+    // int fence = -1;
+    // for (int i = -2; i <= 2; ++i) {
+    //     glm::vec3 pos(i * 0.4f, 0.0f, 1.5f);
+    //     int pillar = builder.addBox(pos, 0.05f, glm::vec3(0.4, 0.3, 0.2));
+    //     if (fence == -1) fence = pillar;
+    //     else fence = builder.unionOp(fence, pillar, glm::vec3(0.4, 0.3, 0.2));
+    // }
+
+    // // Final union
+    // std::vector<int> components = { houseWithDoor, roof, chimney, steps, fence };
+    // int fullHouse = components[0];
+    // for (size_t i = 1; i < components.size(); ++i) {
+    //     fullHouse = builder.unionOp(fullHouse, components[i], glm::vec3(1.0, 1.0, 1.0));
+    // }
+
+    // Build final scene
+    //std::vector<SDFNode> nodes = builder.build();
+
+
+    // Retrieve full node list to upload
+    std::vector<SDFNode> sceneNodes = loadNodesFromJson("assets/house.json");
+    std::cout << "Size " << sceneNodes.size() << std::endl;
 
     Shader shader("shaders/raymarch.vert", "shaders/raymarch.frag");
-
-    float quad[] = {
-        -1.0f, -1.0f,
-         1.0f, -1.0f,
-        -1.0f,  1.0f,
-         1.0f,  1.0f,
-    };
-
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    SDFSceneGL sdfScene;
+    sdfScene.setupQuad();
+    sdfScene.uploadScene(sceneNodes);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -110,7 +154,7 @@ int main() {
     ImGui::StyleColorsDark(); // or Light()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplOpenGL3_Init("#version 430");
 
     float lastFrame = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
@@ -126,17 +170,23 @@ int main() {
         float time = glfwGetTime();
         float dt = time - lastFrame;
         lastFrame = time;
-        //cam.changeMode(mode);
+
         cam.processKeyboard(keys, dt);
+        std::vector<glm::vec3> lightDirs = {
+            glm::normalize(glm::vec3(0.5f, 0.8f, -1.0f)),
+            glm::normalize(glm::vec3(-0.3f, 0.6f, 0.7f))
+        };
 
+        glUniform1i(glGetUniformLocation(shader.ID, "numLights"), lightDirs.size());
+        glUniform3fv(glGetUniformLocation(shader.ID, "lights"), lightDirs.size(), glm::value_ptr(lightDirs[0]));
+        // Set OpenGL state
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
         shader.use();
-        glUniform3fv(glGetUniformLocation(shader.ID, "camPos"), 1, &cam.position[0]);
-        glm::mat4 invVP = cam.getInverseViewProj();
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "invViewProj"), 1, GL_FALSE, &invVP[0][0]);
-        glUniform2f(glGetUniformLocation(shader.ID, "iResolution"), windowWidth, windowHeight);
+        sdfScene.setUniforms(shader.ID, cam.position, cam.getInverseViewProj(), glm::vec2(windowWidth, windowHeight));
+        sdfScene.bindScene(0);
+        sdfScene.renderQuad();
 
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         // Render ImGui on top
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

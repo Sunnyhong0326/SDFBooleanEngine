@@ -1,10 +1,9 @@
 #include "rendering/Camera.hpp"
 #include <GLFW/glfw3.h>
 
-Camera::Camera(glm::vec3 camPos, glm::vec3 targetPos, float dist) {
-    position = glm::vec3(0, 0, 6);
-    target = glm::vec3(0.0f);
-    radius = 6;
+Camera::Camera(glm::vec3 targetPos, float dist) {
+    target = targetPos;
+    radius = dist;
     updatePositionFromSpherical();
 }
 
