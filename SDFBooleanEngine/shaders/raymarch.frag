@@ -49,6 +49,17 @@ float sdTriPrism(vec3 p, vec2 h) {
     return max(q.z - h.y, max(q.x * 0.866025 + p.y * 0.5, -p.y) - h.x * 0.5);
 }
 
+float sdSphere(vec3 p, float s)
+{
+  return length(p) - s;
+}
+
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 q = abs(p) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+}
+
 // Root scene SDF
 float sceneSDF(vec3 p) {
     const int MAX_STACK = 64;
@@ -98,11 +109,12 @@ float sceneSDF(vec3 p) {
             int right = node.right;
 
             if (type == SPHERE) {
-                float d = length(p - node.param1.xyz) - node.param2.x;
+                vec3 localP = p - node.param1.xyz;
+                float d = sdSphere(localP, node.param2.x);
                 resultStack[rs++] = EvalResult(d, index);
             } else if (type == BOX) {
-                vec3 q = abs(p - node.param1.xyz) - vec3(node.param2.xyz);
-                float d = length(max(q, 0.0)) + min(max(max(q.x, q.y), q.z), 0.0);
+                vec3 localP = p - node.param1.xyz;
+                float d = sdBox(localP, node.param2.xyz);
                 resultStack[rs++] = EvalResult(d, index);
             } else if (type == PLANE) {
                 float d = dot(abs(p - node.param1.xyz), node.param2.xyz) + node.param2.w;
