@@ -15,7 +15,7 @@ public:
     glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     float radius = 6.0f;
-    float theta = -glm::half_pi<float>(); // yaw angle (around Y axis)
+    float theta = glm::half_pi<float>(); // yaw angle (around Y axis)
     float phi = glm::half_pi<float>(); // pitch angle from Y axis
 
     float moveSpeed = 3.0f;
@@ -27,8 +27,7 @@ public:
     float minRadius = 0.5f;
     float maxRadius = 50.0f;
 
-    Camera(glm::vec3 targetPos = glm::vec3(0.0f), float dist = 6.0f);
-
+    Camera(glm::vec3 targetPos = glm::vec3(0.0f, 1.0f, 0.0f), float dist = 6.0f);
 
     void processMouseDrag(float dx, float dy);
 
@@ -40,7 +39,13 @@ public:
 
     void updateAspectRatio(float);
 
+    void update();
+
     glm::mat4 getViewMatrix() const;
+
+    glm::mat4 getProjMatrix() const;
+
+    glm::mat4 getViewProjMatrix() const;
 
     glm::mat4 getInverseViewProj();
 
@@ -48,5 +53,8 @@ private:
     void updatePositionFromSpherical();
 
     void updateVectors();
+
+    glm::mat4 viewMat;
+    glm::mat4 projMat;
 
 };

@@ -60,12 +60,6 @@
     <ClInclude Include="include\rendering\Shader.hpp">
       <Filter>Include\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="include\core\Evaluator.hpp">
-      <Filter>Include\core</Filter>
-    </ClInclude>
-    <ClInclude Include="include\core\SceneNode.hpp">
-      <Filter>Include\core</Filter>
-    </ClInclude>
     <ClInclude Include="libs\imgui\imconfig.h">
       <Filter>Include\libs\imgui</Filter>
     </ClInclude>
@@ -90,7 +84,7 @@
     <ClInclude Include="libs\imgui\backends\imgui_impl_opengl3.h">
       <Filter>Include\libs\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="include\sdf\SDFBuilder.hpp">
+    <ClInclude Include="include\sdf\CSGTree.hpp">
       <Filter>Include\sdf</Filter>
     </ClInclude>
     <ClInclude Include="include\sdf\SDFLoader.hpp">
@@ -99,14 +93,14 @@
     <ClInclude Include="include\sdf\SDFSceneGL.hpp">
       <Filter>Include\sdf</Filter>
     </ClInclude>
+    <ClInclude Include="include\core\MarchingCube.hpp">
+      <Filter>Include\core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\core\MeshUtils.hpp">
+      <Filter>Include\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\Evaluator.cpp">
-      <Filter>Source\core</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\SceneNode.cpp">
-      <Filter>Source\core</Filter>
-    </ClCompile>
     <ClCompile Include="src\rendering\Camera.cpp">
       <Filter>Source\rendering</Filter>
     </ClCompile>
@@ -146,8 +140,11 @@
     <ClCompile Include="src\sdf\SDFSceneGL.cpp">
       <Filter>Source\sdf</Filter>
     </ClCompile>
-    <ClCompile Include="src\sdf\SDFBuilder.cpp">
+    <ClCompile Include="src\sdf\CSGTree.cpp">
       <Filter>Source\sdf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\MarchingCube.cpp">
+      <Filter>Source\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +152,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\raymarch.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\aabb.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\aabb.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

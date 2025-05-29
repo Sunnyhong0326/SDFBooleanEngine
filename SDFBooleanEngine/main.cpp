@@ -3,13 +3,17 @@
 #include "rendering/Shader.hpp"
 #include "rendering/Camera.hpp"
 #include "sdf/SDFSceneGL.hpp"
-#include "sdf/SDFBuilder.hpp"
+#include "sdf/CSGTree.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <vector>
 #include "sdf/SDFLoader.hpp"
+#include "core/MarchingCube.hpp"
+#include "core/MeshUtils.hpp"
+#include <memory>
 
 Camera cam;
 bool keys[1024];
@@ -17,6 +21,7 @@ float lastX = 400, lastY = 300;
 bool firstMouse = true;
 bool leftMousePressed = false;
 bool rightMousePressed = false;
+bool imguiIO = false;
 float windowWidth = 800.f, windowHeight=600.f;
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -60,13 +65,11 @@ void mouseCallback(GLFWwindow* w, double xpos, double ypos) {
     float dy = ypos - lastY;
     lastX = xpos;
     lastY = ypos;
-    if (leftMousePressed)
+    if (!imguiIO && leftMousePressed)
         cam.processMouseDrag(dx, dy);
-    if (rightMousePressed) {
+    if (!imguiIO && rightMousePressed) {
         cam.processPan(dx, dy);
     }
-
-    //cam.processMouse(dx, dy, leftMousePressed, rightMousePressed);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -80,7 +83,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "SDF Raymarching", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "CSG SDF Raymarching", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetKeyCallback(window, keyCallback);
@@ -92,60 +95,30 @@ int main() {
         std::cerr << "GLAD init failed!" << std::endl;
         return -1;
     }
-    // SDFBuilder builder;
 
-    // // House body
-    // int body = builder.addBox(glm::vec3(0.0f, 0.5f, 0.0f), 1.0f, glm::vec3(0.8, 0.5, 0.3));
-
-    // // Door
-    // int door = builder.addBox(glm::vec3(0.0f, 0.0f, 1.01f), 0.25f, glm::vec3(0.3, 0.2, 0.1));
-    // int houseWithDoor = builder.subtract(body, door, glm::vec3(0.8, 0.5, 0.3));
-
-    // // Windows
-    // int window1 = builder.addBox(glm::vec3(-0.4f, 0.5f, 1.01f), 0.15f, glm::vec3(0.2, 0.4, 1.0));
-    // int window2 = builder.addBox(glm::vec3(0.4f, 0.5f, 1.01f), 0.15f, glm::vec3(0.2, 0.4, 1.0));
-    // houseWithDoor = builder.subtract(houseWithDoor, window1, glm::vec3(0.8, 0.5, 0.3));
-    // houseWithDoor = builder.subtract(houseWithDoor, window2, glm::vec3(0.8, 0.5, 0.3));
-
-    // // Slanted Roof using triangle prism
-    // int roof = builder.addTriPrism(glm::vec3(0.0f, 1.5f, 0.0f), 2.0f, 1.0f, glm::vec3(0.5, 0.1, 0.1));
-
-    // // Chimney
-    // int chimney = builder.addBox(glm::vec3(0.5f, 2.0f, 0.2f), 0.15f, glm::vec3(0.2, 0.1, 0.1));
-
-    // // Steps
-    // int step1 = builder.addBox(glm::vec3(0.0f, -0.6f, 1.2f), 0.3f, glm::vec3(0.5, 0.4, 0.3));
-    // int step2 = builder.addBox(glm::vec3(0.0f, -0.4f, 1.1f), 0.25f, glm::vec3(0.5, 0.4, 0.3));
-    // int steps = builder.unionOp(step1, step2, glm::vec3(0.5, 0.4, 0.3));
-
-    // // Fence pillars
-    // int fence = -1;
-    // for (int i = -2; i <= 2; ++i) {
-    //     glm::vec3 pos(i * 0.4f, 0.0f, 1.5f);
-    //     int pillar = builder.addBox(pos, 0.05f, glm::vec3(0.4, 0.3, 0.2));
-    //     if (fence == -1) fence = pillar;
-    //     else fence = builder.unionOp(fence, pillar, glm::vec3(0.4, 0.3, 0.2));
-    // }
-
-    // // Final union
-    // std::vector<int> components = { houseWithDoor, roof, chimney, steps, fence };
-    // int fullHouse = components[0];
-    // for (size_t i = 1; i < components.size(); ++i) {
-    //     fullHouse = builder.unionOp(fullHouse, components[i], glm::vec3(1.0, 1.0, 1.0));
-    // }
-
-    // Build final scene
-    //std::vector<SDFNode> nodes = builder.build();
-
+    std::unique_ptr<Shader> rayMarchShader = std::make_unique<Shader>("shaders/raymarch.vert", "shaders/raymarch.frag");
+    std::unique_ptr<Shader> aabbShader = std::make_unique<Shader>("shaders/aabb.vert", "shaders/aabb.frag");
 
     // Retrieve full node list to upload
-    std::vector<SDFNode> sceneNodes = loadNodesFromJson("assets/house.json");
-    std::cout << "Size " << sceneNodes.size() << std::endl;
+    std::vector<SDFNode> sceneNodes = loadNodesFromJson("assets/gemini_robot.json");
 
-    Shader shader("shaders/raymarch.vert", "shaders/raymarch.frag");
-    SDFSceneGL sdfScene;
-    sdfScene.setupQuad();
-    sdfScene.uploadScene(sceneNodes);
+    std::unique_ptr<CSGTree> csgTree = std::make_unique<CSGTree>();
+    csgTree->setNodes(sceneNodes);
+
+    // Run marching cubes
+    std::unique_ptr<MarchingCubes> marchingCubes = std::make_unique<MarchingCubes>();
+    int rootIndex = csgTree->getNumNodes() - 1;
+    AABB bbox = csgTree->computeAABB(rootIndex);
+    auto grid = marchingCubes->sampleGrid(csgTree, rootIndex, bbox, glm::ivec3(128, 128, 128));
+    auto tris = marchingCubes->run(grid, 0.0f);
+    exportToPLY("output.ply", tris);
+
+
+    std::unique_ptr<SDFSceneGL> sdfScene = std::make_unique<SDFSceneGL>();
+    sdfScene->setupQuad();
+    sdfScene->setupMCVoxel(grid);
+    sdfScene->setupCSGTreeAABB(csgTree);
+    sdfScene->uploadScene(sceneNodes);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -158,12 +131,12 @@ int main() {
 
     float lastFrame = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
-        // Start new ImGui frame
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Draw UI
         ImGui::Begin("Scene");
         ImGui::End();
 
@@ -171,23 +144,34 @@ int main() {
         float dt = time - lastFrame;
         lastFrame = time;
 
+        imguiIO = io.WantCaptureMouse;
         cam.processKeyboard(keys, dt);
+        cam.update();
+
+        // ray march shader
+        rayMarchShader->use();
+
         std::vector<glm::vec3> lightDirs = {
             glm::normalize(glm::vec3(0.5f, 0.8f, -1.0f)),
             glm::normalize(glm::vec3(-0.3f, 0.6f, 0.7f))
         };
+        glUniform1i(glGetUniformLocation(rayMarchShader->ID, "numLights"), lightDirs.size());
+        glUniform3fv(glGetUniformLocation(rayMarchShader->ID, "lights"), lightDirs.size(), glm::value_ptr(lightDirs[0]));
 
-        glUniform1i(glGetUniformLocation(shader.ID, "numLights"), lightDirs.size());
-        glUniform3fv(glGetUniformLocation(shader.ID, "lights"), lightDirs.size(), glm::value_ptr(lightDirs[0]));
-        // Set OpenGL state
-        glClearColor(0, 0, 0, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
-        shader.use();
-        sdfScene.setUniforms(shader.ID, cam.position, cam.getInverseViewProj(), glm::vec2(windowWidth, windowHeight));
-        sdfScene.bindScene(0);
-        sdfScene.renderQuad();
+        sdfScene->setRaymarchUniforms(rayMarchShader->ID, cam.position, cam.getInverseViewProj(), glm::vec2(windowWidth, windowHeight));
+        sdfScene->bindScene(0);
+        sdfScene->renderQuad();
 
-        // Render ImGui on top
+        // aabb line shader
+        aabbShader->use();
+        sdfScene->setCSGTreeAABBUniforms(aabbShader->ID, cam.getViewProjMatrix());
+        sdfScene->renderCSGTreeAABB();
+
+        // voxel shader
+        aabbShader->use();
+        sdfScene->setMCVoxelUniforms(aabbShader->ID, cam.getViewProjMatrix());
+        sdfScene->renderMCVoxel();
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

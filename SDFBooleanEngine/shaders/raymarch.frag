@@ -177,7 +177,7 @@ void main() {
         if (t > maxDist) break;
     }
 
-    vec3 color = vec3(0.0);
+    vec3 color = vec3(0.53f, 0.81f, 0.92f);
     if (d < epsilon) {
         vec3 hit = ro + t * rd;
         vec3 normal = getNormal(hit);
@@ -193,7 +193,6 @@ void main() {
         }
 
         color = diffuse / float(numLights);
-        // color = vec3(1.0, 0.2235, 0.2235) * diff; // basic diffuse
     }
 
     FragColor = vec4(color, 1.0);

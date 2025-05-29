@@ -75,12 +75,23 @@ void Camera::updateAspectRatio(float aspectRatio) {
     aspect = aspectRatio;
 }
 
+void Camera::update() {
+    viewMat = glm::lookAt(position, target, up);
+    projMat = glm::perspective(glm::radians(fov), aspect, 0.1f, 100.0f);
+}
+
 glm::mat4 Camera::getViewMatrix() const {
-    return glm::lookAt(position, target, up);
+    return viewMat;
+}
+
+glm::mat4 Camera::getProjMatrix() const {
+    return projMat;
+}
+
+glm::mat4 Camera::getViewProjMatrix() const {
+    return projMat * viewMat;
 }
 
 glm::mat4 Camera::getInverseViewProj() {
-    glm::mat4 view = getViewMatrix();
-    glm::mat4 proj = glm::perspective(glm::radians(fov), aspect, 0.1f, 100.0f);
-    return glm::inverse(proj * view);
+    return glm::inverse(projMat * viewMat);
 }

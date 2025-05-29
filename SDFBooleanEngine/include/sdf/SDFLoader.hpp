@@ -1,6 +1,5 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
-#include "sdf/SDFNode.hpp"
 
 using json = nlohmann::json;
 

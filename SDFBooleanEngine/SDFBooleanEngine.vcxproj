@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{850b30e8-0ed8-45df-ba87-fa843fa937a0}</ProjectGuid>
     <RootNamespace>SDFBooleanEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -163,11 +163,11 @@ xcopy /Y /E "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\core\Evaluator.hpp" />
-    <ClInclude Include="include\core\SceneNode.hpp" />
+    <ClInclude Include="include\core\MarchingCube.hpp" />
+    <ClInclude Include="include\core\MeshUtils.hpp" />
     <ClInclude Include="include\rendering\Camera.hpp" />
     <ClInclude Include="include\rendering\Shader.hpp" />
-    <ClInclude Include="include\sdf\SDFBuilder.hpp" />
+    <ClInclude Include="include\sdf\CSGTree.hpp" />
     <ClInclude Include="include\sdf\SDFLoader.hpp" />
     <ClInclude Include="include\sdf\SDFNode.hpp" />
     <ClInclude Include="include\sdf\SDFSceneGL.hpp" />
@@ -191,14 +191,15 @@ xcopy /Y /E "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     <ClCompile Include="libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\core\Evaluator.cpp" />
-    <ClCompile Include="src\core\SceneNode.cpp" />
+    <ClCompile Include="src\core\MarchingCube.cpp" />
     <ClCompile Include="src\rendering\Camera.cpp" />
     <ClCompile Include="src\rendering\Shader.cpp" />
-    <ClCompile Include="src\sdf\SDFBuilder.cpp" />
+    <ClCompile Include="src\sdf\CSGTree.cpp" />
     <ClCompile Include="src\sdf\SDFSceneGL.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\aabb.frag" />
+    <None Include="shaders\aabb.vert" />
     <None Include="shaders\raymarch.frag" />
     <None Include="shaders\raymarch.vert" />
   </ItemGroup>
