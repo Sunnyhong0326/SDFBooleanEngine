@@ -27,7 +27,7 @@ public:
     float minRadius = 0.5f;
     float maxRadius = 50.0f;
 
-    Camera(glm::vec3 targetPos = glm::vec3(0.0f, 1.0f, 0.0f), float dist = 6.0f);
+    Camera(glm::vec3 targetPos = glm::vec3(0.0f, 0.0f, 0.0f), float dist = 6.0f);
 
     void processMouseDrag(float dx, float dy);
 

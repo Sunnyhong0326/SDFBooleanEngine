@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include "rendering/Shader.hpp"
 #include "rendering/Camera.hpp"
-#include "sdf/SDFSceneGL.hpp"
 #include "sdf/CSGTree.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -10,9 +9,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
-#include "sdf/SDFLoader.hpp"
 #include "core/MarchingCube.hpp"
 #include "core/MeshUtils.hpp"
+#include "sdf/SDFSceneGL.hpp"
 #include <memory>
 
 Camera cam;
@@ -99,11 +98,8 @@ int main() {
     std::unique_ptr<Shader> rayMarchShader = std::make_unique<Shader>("shaders/raymarch.vert", "shaders/raymarch.frag");
     std::unique_ptr<Shader> aabbShader = std::make_unique<Shader>("shaders/aabb.vert", "shaders/aabb.frag");
 
-    // Retrieve full node list to upload
-    std::vector<SDFNode> sceneNodes = loadNodesFromJson("assets/gemini_robot.json");
-
     std::unique_ptr<CSGTree> csgTree = std::make_unique<CSGTree>();
-    csgTree->setNodes(sceneNodes);
+    csgTree->loadNodesFromJson("assets/gemini_robot.json");
 
     // Run marching cubes
     std::unique_ptr<MarchingCubes> marchingCubes = std::make_unique<MarchingCubes>();
@@ -118,7 +114,7 @@ int main() {
     sdfScene->setupQuad();
     sdfScene->setupMCVoxel(grid);
     sdfScene->setupCSGTreeAABB(csgTree);
-    sdfScene->uploadScene(sceneNodes);
+    sdfScene->uploadScene(csgTree->getNodes());
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

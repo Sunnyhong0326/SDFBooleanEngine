@@ -49,6 +49,12 @@
     <Filter Include="Source\libs\glad">
       <UniqueIdentifier>{446f202c-4e45-40b7-8a6a-c86c9458c97d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ui">
+      <UniqueIdentifier>{ce8d25b8-2931-4619-818a-7f893464b444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\ui">
+      <UniqueIdentifier>{261e4d46-4b1d-4746-a50e-2ad4dc1f4c23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\sdf\SDFNode.hpp">
@@ -85,9 +91,6 @@
       <Filter>Include\libs\imgui</Filter>
     </ClInclude>
     <ClInclude Include="include\sdf\CSGTree.hpp">
-      <Filter>Include\sdf</Filter>
-    </ClInclude>
-    <ClInclude Include="include\sdf\SDFLoader.hpp">
       <Filter>Include\sdf</Filter>
     </ClInclude>
     <ClInclude Include="include\sdf\SDFSceneGL.hpp">

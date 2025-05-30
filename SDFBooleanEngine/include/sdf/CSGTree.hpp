@@ -4,6 +4,10 @@
 #include "sdf/SDFNode.hpp"
 #include "sdf/CSGTree.hpp"
 #include "sdf/SDFEvaluator.hpp"
+#include <nlohmann/json.hpp>
+#include <fstream>
+
+using json = nlohmann::json;
 
 class CSGTree {
 public:
@@ -36,6 +40,8 @@ public:
     int subtract(int a, int b, glm::vec3 color = glm::vec3(1.0f)) {
         return addNode(SUBTRACT, a, b, glm::vec3(0), glm::vec4(0), color);
     }
+
+    void loadNodesFromJson(const std::string& filename);
 
     AABB computeAABB (int idx) const;
 

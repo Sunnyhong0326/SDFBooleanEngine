@@ -1,7 +1,6 @@
 #include "sdf/CSGTree.hpp"
 #include <algorithm>
 
-
 int CSGTree::addNode(int type, int left, int right, glm::vec3 param1, glm::vec4 param2, glm::vec3 color) {
     SDFNode node;
     node.type = type;
@@ -13,6 +12,35 @@ int CSGTree::addNode(int type, int left, int right, glm::vec3 param1, glm::vec4 
     nodes.push_back(node);
     return nodes.size() - 1;
 }
+
+void CSGTree::loadNodesFromJson(const std::string& filename) {
+    std::ifstream in(filename);
+    json j;
+    in >> j;
+
+    nodes.clear();
+
+    for (const auto& item : j["nodes"]) {
+        SDFNode node;
+        node.type = item["type"];
+        node.left = item["left"];
+        node.right = item["right"];
+        node.pad = 0;
+
+        auto p1 = item["param1"];
+        node.param1 = glm::vec4(p1[0], p1[1], p1[2], p1[3]);
+
+        auto p2 = item["param2"];
+        node.param2 = glm::vec4(p2[0], p2[1], p2[2], p2[3]);
+
+        auto col = item["color"];
+        node.color = glm::vec3(col[0], col[1], col[2]);
+        node.pad0 = 0;
+
+        nodes.push_back(node);
+    }
+}
+
 
 AABB CSGTree::computeAABB(int idx) const {
     const SDFNode& node = nodes[idx];

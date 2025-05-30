@@ -8,8 +8,8 @@
 
 std::vector<GridCell> MarchingCubes::sampleGrid(const std::unique_ptr<CSGTree>& tree, int rootIdx, const AABB& box, glm::ivec3 resolution) {
     std::vector<GridCell> grid;
-    glm::vec3 min = box.min;
-    glm::vec3 max = box.max;
+    glm::vec3 min = box.min - glm::vec3(0.5f, 0.5f, 0.5f);
+    glm::vec3 max = box.max + glm::vec3(0.5f, 0.5f, 0.5f);
     glm::vec3 size = max - min;
     glm::vec3 step = size / glm::vec3(resolution - glm::ivec3(1));
 
