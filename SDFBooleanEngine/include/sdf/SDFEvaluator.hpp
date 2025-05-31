@@ -14,6 +14,33 @@ inline AABB sphereAABB(const glm::vec3& center, float radius) {
     return { center - glm::vec3(radius), center + glm::vec3(radius) };
 }
 
+inline AABB torusAABB(glm::vec3 center, glm::vec2 t) {
+    float R = t.x, r = t.y;
+    glm::vec3 extent = glm::vec3(R + r);
+    extent.y = r;
+    return { center - extent, center + extent };
+}
+
+inline AABB cylinderAABB(glm::vec3 center, float height, float radius) {
+    glm::vec3 extent = glm::vec3(radius, height, radius);
+    return { center - extent, center + extent };
+}
+
+inline AABB coneAABB(glm::vec3 center, glm::vec2 sincos, float height) {
+    // Radius at base = height * tan(£c) = height * (sin/cos) = height * sincos.x / sincos.y
+    float radius = height * sincos.x / sincos.y;
+    glm::vec3 extent = glm::vec3(radius, height, radius);
+
+    return { center - extent, center + extent };
+}
+
+inline AABB capsuleAABB(glm::vec3 a, glm::vec3 b, float r) {
+    glm::vec3 min = glm::min(a, b) - glm::vec3(r);
+    glm::vec3 max = glm::max(a, b) + glm::vec3(r);
+    return { min, max };
+}
+
+
 inline AABB unionAABB(const AABB& a, const AABB& b) {
     return { glm::min(a.min, b.min), glm::max(a.max, b.max) };
 }

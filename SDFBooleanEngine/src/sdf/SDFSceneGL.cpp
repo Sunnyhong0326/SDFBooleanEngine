@@ -7,12 +7,17 @@ SDFSceneGL::SDFSceneGL() {}
 
 SDFSceneGL::~SDFSceneGL() {
     if (ssbo) glDeleteBuffers(1, &ssbo);
-    if (quadVBO) glDeleteBuffers(1, &quadVBO);
     if (quadVAO) glDeleteVertexArrays(1, &quadVAO);
+    if (quadVBO) glDeleteBuffers(1, &quadVBO);
+    if (meshVAO) glDeleteVertexArrays(1, &meshVAO);
+    if (meshVBO) glDeleteBuffers(1, &meshVBO);
+    if (aabbVAO) glDeleteVertexArrays(1, &aabbVAO);
+    if (aabbVBO) glDeleteBuffers(1, &aabbVBO);
 }
 
 void SDFSceneGL::uploadScene(const std::vector<SDFNode>& nodes) {
-    if (ssbo == 0) glGenBuffers(1, &ssbo);
+    if (ssbo) glDeleteBuffers(1, &ssbo);
+    glGenBuffers(1, &ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(SDFNode) * nodes.size(), nodes.data(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
@@ -45,6 +50,8 @@ void SDFSceneGL::setRaymarchUniforms(GLuint shaderID, const glm::vec3& camPos, c
     glUniform3fv(glGetUniformLocation(shaderID, "camPos"), 1, &camPos[0]);
     glUniformMatrix4fv(glGetUniformLocation(shaderID, "invViewProj"), 1, GL_FALSE, &invViewProj[0][0]);
     glUniform2f(glGetUniformLocation(shaderID, "iResolution"), iResolution.x, iResolution.y);
+    glUniform1i(glGetUniformLocation(shaderID, "numLights"), lightDirs.size());
+    glUniform3fv(glGetUniformLocation(shaderID, "lights"), lightDirs.size(), glm::value_ptr(lightDirs[0]));
 }
 
 void SDFSceneGL::renderQuad() const {
@@ -53,7 +60,10 @@ void SDFSceneGL::renderQuad() const {
     glBindVertexArray(0);
 }
 
-void SDFSceneGL::setupCSGTreeAABB(const std::unique_ptr<CSGTree>& csgTree) {
+void SDFSceneGL::setupCSGTreeAABB(CSGTree* csgTree) {
+    if (aabbVAO) glDeleteVertexArrays(1, &aabbVAO);
+    if (aabbVBO) glDeleteBuffers(1, &aabbVBO);
+
     glGenVertexArrays(1, &aabbVAO);
     glGenBuffers(1, &aabbVBO);
 
@@ -137,4 +147,46 @@ void SDFSceneGL::renderMCVoxel() const {
 
     glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void SDFSceneGL::uploadMesh(std::vector<Triangle> tris) {
+    std::vector<Vertex> vertices;
+
+    for (const auto& tri : tris) {
+        vertices.push_back({ tri.v0, tri.normal });
+        vertices.push_back({ tri.v1, tri.normal });
+        vertices.push_back({ tri.v2, tri.normal });
+    }
+
+    vertexCount = vertices.size();
+
+    if (meshVAO) { glDeleteVertexArrays(1, &meshVAO); meshVAO = 0; }
+    if (meshVBO) { glDeleteBuffers(1, &meshVBO); meshVBO = 0; }
+    glGenVertexArrays(1, &meshVAO);
+    glGenBuffers(1, &meshVBO);
+
+    glBindVertexArray(meshVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, meshVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+}
+
+void SDFSceneGL::setMeshUniforms(GLuint shaderID, const glm::mat4& viewProjMat) {
+    glUniformMatrix4fv(glGetUniformLocation(shaderID, "uModel"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+    glUniformMatrix4fv(glGetUniformLocation(shaderID, "uViewProj"), 1, GL_FALSE, glm::value_ptr(viewProjMat));
+    glUniform1i(glGetUniformLocation(shaderID, "numLights"), 2);
+    glUniform3fv(glGetUniformLocation(shaderID, "lights"), 2, glm::value_ptr(lightDirs[0]));
+}
+
+void SDFSceneGL::renderMesh() {
+    glBindVertexArray(meshVAO);
+    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    glBindVertexArray(0);
 }

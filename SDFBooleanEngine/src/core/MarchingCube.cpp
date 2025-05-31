@@ -6,7 +6,7 @@
 #include <iostream>
 #include "core/MarchingCube.hpp"
 
-std::vector<GridCell> MarchingCubes::sampleGrid(const std::unique_ptr<CSGTree>& tree, int rootIdx, const AABB& box, glm::ivec3 resolution) {
+std::vector<GridCell> MarchingCubes::sampleGrid(CSGTree* tree, int rootIdx, const AABB& box, glm::ivec3 resolution) {
     std::vector<GridCell> grid;
     glm::vec3 min = box.min - glm::vec3(0.5f, 0.5f, 0.5f);
     glm::vec3 max = box.max + glm::vec3(0.5f, 0.5f, 0.5f);
@@ -37,6 +37,7 @@ glm::vec3 MarchingCubes::interpolateVertex(float iso, const glm::vec3& p1, const
     return p1 + t * (p2 - p1);
 }
 
+
 std::vector<Triangle> MarchingCubes::run(const std::vector<GridCell>& grid, float isoLevel) {
     std::vector<Triangle> triangles;
 
@@ -53,26 +54,29 @@ std::vector<Triangle> MarchingCubes::run(const std::vector<GridCell>& grid, floa
                 cubeIndex |= (1 << i);
         }
 
-        int intersectionsKey = edgeTable[cubeIndex];
-        if (intersectionsKey == 0) continue;
-
+        int edgeMask = edgeTable[cubeIndex];
         glm::vec3 vertList[12];
-        int idx = 0;
-        while (intersectionsKey) {
-            if (intersectionsKey & 1) {
-                int a = edgeConnection[idx][0];
-                int b = edgeConnection[idx][1];
-                vertList[idx] = interpolateVertex(isoLevel, cell.position[a], cell.position[b], cell.value[a], cell.value[b]);
+
+        for (int i = 0; i < 12; ++i) {
+            if (edgeMask & (1 << i)) {
+                int a = edgeConnection[i][0];
+                int b = edgeConnection[i][1];
+                vertList[i] = interpolateVertex(isoLevel, cell.position[a], cell.position[b], cell.value[a], cell.value[b]);
             }
-            intersectionsKey >>= 1;
-            idx++;
         }
 
         for (int i = 0; triangleTable[cubeIndex][i] != -1; i += 3) {
             Triangle tri;
+
             tri.v0 = vertList[triangleTable[cubeIndex][i]];
             tri.v1 = vertList[triangleTable[cubeIndex][i + 2]];
             tri.v2 = vertList[triangleTable[cubeIndex][i + 1]];
+
+            glm::vec3 edge1 = tri.v1 - tri.v0;
+            glm::vec3 edge2 = tri.v2 - tri.v0;
+            glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
+            tri.normal = faceNormal;
+
             triangles.push_back(tri);
         }
     }

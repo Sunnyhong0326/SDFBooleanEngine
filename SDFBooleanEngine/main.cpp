@@ -1,18 +1,20 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "rendering/Shader.hpp"
-#include "rendering/Camera.hpp"
-#include "sdf/CSGTree.hpp"
+#include <memory>
+#include <iostream>
+#include <vector>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-#include <vector>
+#include "rendering/Shader.hpp"
+#include "rendering/Camera.hpp"
 #include "core/MarchingCube.hpp"
 #include "core/MeshUtils.hpp"
 #include "sdf/SDFSceneGL.hpp"
-#include <memory>
+#include "sdf/CSGTree.hpp"
+#include "ui/CSGAppState.hpp"
+#include "ui/CSGAppUI.hpp"
 
 Camera cam;
 bool keys[1024];
@@ -97,44 +99,40 @@ int main() {
 
     std::unique_ptr<Shader> rayMarchShader = std::make_unique<Shader>("shaders/raymarch.vert", "shaders/raymarch.frag");
     std::unique_ptr<Shader> aabbShader = std::make_unique<Shader>("shaders/aabb.vert", "shaders/aabb.frag");
+    std::unique_ptr<Shader> meshShader = std::make_unique<Shader>("shaders/mesh.vert", "shaders/mesh.frag");
 
     std::unique_ptr<CSGTree> csgTree = std::make_unique<CSGTree>();
-    csgTree->loadNodesFromJson("assets/gemini_robot.json");
-
-    // Run marching cubes
     std::unique_ptr<MarchingCubes> marchingCubes = std::make_unique<MarchingCubes>();
-    int rootIndex = csgTree->getNumNodes() - 1;
-    AABB bbox = csgTree->computeAABB(rootIndex);
-    auto grid = marchingCubes->sampleGrid(csgTree, rootIndex, bbox, glm::ivec3(128, 128, 128));
-    auto tris = marchingCubes->run(grid, 0.0f);
-    exportToPLY("output.ply", tris);
-
-
     std::unique_ptr<SDFSceneGL> sdfScene = std::make_unique<SDFSceneGL>();
     sdfScene->setupQuad();
-    sdfScene->setupMCVoxel(grid);
-    sdfScene->setupCSGTreeAABB(csgTree);
-    sdfScene->uploadScene(csgTree->getNodes());
+    /*std::vector<Triangle> tris{};
+    sdfScene->uploadMesh(tris);*/
+    /*sdfScene->setupQuad();
+    sdfScene->setupCSGTreeAABB(csgTree.get());
+    sdfScene->uploadScene(csgTree->getNodes());*/
+
+    CSGAppState appState;
+    appState.csgTree = csgTree.get();
+    appState.marchingCubes = marchingCubes.get();
+    appState.sdfScene = sdfScene.get();
+    CSGAppUI appUI(appState);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-    ImGui::StyleColorsDark(); // or Light()
-
+    ImGui::StyleColorsDark(); 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 430");
 
     float lastFrame = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
+        // mimic the same background in mesh renderer
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        ImGui::Begin("Scene");
-        ImGui::End();
 
         float time = glfwGetTime();
         float dt = time - lastFrame;
@@ -144,29 +142,30 @@ int main() {
         cam.processKeyboard(keys, dt);
         cam.update();
 
-        // ray march shader
-        rayMarchShader->use();
+        appUI.draw();
 
-        std::vector<glm::vec3> lightDirs = {
-            glm::normalize(glm::vec3(0.5f, 0.8f, -1.0f)),
-            glm::normalize(glm::vec3(-0.3f, 0.6f, 0.7f))
-        };
-        glUniform1i(glGetUniformLocation(rayMarchShader->ID, "numLights"), lightDirs.size());
-        glUniform3fv(glGetUniformLocation(rayMarchShader->ID, "lights"), lightDirs.size(), glm::value_ptr(lightDirs[0]));
+        if (appState.hasExtracted && appState.onMeshExtracted) {
+            appState.onMeshExtracted();
+            appState.onMeshExtracted = nullptr;
+        }
 
-        sdfScene->setRaymarchUniforms(rayMarchShader->ID, cam.position, cam.getInverseViewProj(), glm::vec2(windowWidth, windowHeight));
-        sdfScene->bindScene(0);
-        sdfScene->renderQuad();
+        if (!appState.useMeshRenderer) {
+            rayMarchShader->use();
+            sdfScene->setRaymarchUniforms(rayMarchShader->ID, cam.position, cam.getInverseViewProj(), glm::vec2(windowWidth, windowHeight));
+            sdfScene->bindScene(0);
+            sdfScene->renderQuad();
+        }
+        else {
+            meshShader->use();
+            sdfScene->setMeshUniforms(meshShader->ID, cam.getViewProjMatrix());
+            sdfScene->renderMesh();
+        }
 
-        // aabb line shader
-        aabbShader->use();
-        sdfScene->setCSGTreeAABBUniforms(aabbShader->ID, cam.getViewProjMatrix());
-        sdfScene->renderCSGTreeAABB();
-
-        // voxel shader
-        aabbShader->use();
-        sdfScene->setMCVoxelUniforms(aabbShader->ID, cam.getViewProjMatrix());
-        sdfScene->renderMCVoxel();
+        if (appState.showAABB) {
+            aabbShader->use();
+            sdfScene->setCSGTreeAABBUniforms(aabbShader->ID, cam.getViewProjMatrix());
+            sdfScene->renderCSGTreeAABB();
+        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -177,6 +176,7 @@ int main() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    appState.joinBackgroundThread();
     glfwTerminate();
     return 0;
 }

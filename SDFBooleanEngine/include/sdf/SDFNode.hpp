@@ -1,14 +1,18 @@
 #pragma once
 #include <glm/glm.hpp>
 
-enum SDFType { 
-    SPHERE = 0, 
-    BOX = 1, 
-    PLANE = 2, 
+enum SDFType {
+    SPHERE = 0,
+    BOX = 1,
+    PLANE = 2,
     TRI_PRISM = 3,
-    
-    UNION = 10, 
-    INTERSECT = 11, 
+    TORUS = 4,
+    CYLINDER = 5,
+    CONE = 6,
+    CAPSULE = 7,
+
+    UNION = 10,
+    INTERSECT = 11,
     SUBTRACT = 12
 };
 

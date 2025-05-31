@@ -2,7 +2,6 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "sdf/SDFNode.hpp"
-#include "sdf/CSGTree.hpp"
 #include "sdf/SDFEvaluator.hpp"
 #include <nlohmann/json.hpp>
 #include <fstream>

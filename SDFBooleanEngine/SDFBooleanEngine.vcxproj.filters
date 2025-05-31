@@ -102,6 +102,15 @@
     <ClInclude Include="include\core\MeshUtils.hpp">
       <Filter>Include\core</Filter>
     </ClInclude>
+    <ClInclude Include="include\ui\CSGAppState.hpp">
+      <Filter>Include\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ui\CSGAppUI.hpp">
+      <Filter>Include\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\core\FileDialog.hpp">
+      <Filter>Include\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\rendering\Camera.cpp">
@@ -149,6 +158,12 @@
     <ClCompile Include="src\core\MarchingCube.cpp">
       <Filter>Source\core</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\CSGAppState.cpp">
+      <Filter>Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\CSGAppUI.cpp">
+      <Filter>Source\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\raymarch.frag">
@@ -161,6 +176,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\aabb.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\mesh.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\mesh.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

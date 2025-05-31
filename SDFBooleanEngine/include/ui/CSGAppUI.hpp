@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "ui/CSGAppState.hpp"
+#include "core/FileDialog.hpp"
 
 class CSGAppUI {
 public:

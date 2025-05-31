@@ -10,13 +10,17 @@ uniform vec3 camPos;
 #define MAX_LIGHTS 4
 
 uniform int numLights;
-uniform vec3 lights[MAX_LIGHTS]; // light directions
+uniform vec3 lights[MAX_LIGHTS]; 
 
 // Node type constants
 #define SPHERE    0
 #define BOX       1
 #define PLANE     2
 #define TRI_PRISM 3
+#define TORUS     4
+#define CYLINDER  5
+#define CONE      6
+#define CAPSULE   7
 #define UNION     10
 #define INTERSECT 11
 #define SUBTRACT  12
@@ -58,6 +62,38 @@ float sdBox( vec3 p, vec3 b )
 {
   vec3 q = abs(p) - b;
   return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+}
+
+float sdTorus(vec3 p, vec2 t) {
+    vec2 q = vec2(length(p.xz) - t.x, p.y);
+    return length(q) - t.y;
+}
+
+float sdCylinder(vec3 p, float h, float r) {
+    vec2 d = abs(vec2(length(p.xz), p.y)) - vec2(r, h);
+    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+
+float sdCone( vec3 p, vec2 c, float h )
+{
+  // c is the sin/cos of the angle, h is height
+  // Alternatively pass q instead of (c,h),
+  // which is the point at the base in 2D
+  vec2 q = h*vec2(c.x/c.y,-1.0);
+    
+  vec2 w = vec2( length(p.xz), p.y );
+  vec2 a = w - q*clamp( dot(w,q)/dot(q,q), 0.0, 1.0 );
+  vec2 b = w - q*vec2( clamp( w.x/q.x, 0.0, 1.0 ), 1.0 );
+  float k = sign( q.y );
+  float d = min(dot( a, a ),dot(b, b));
+  float s = max( k*(w.x*q.y-w.y*q.x),k*(w.y-q.y)  );
+  return sqrt(d)*sign(s);
+}
+
+float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
+    vec3 pa = p - a, ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h) - r;
 }
 
 // Root scene SDF
@@ -123,7 +159,20 @@ float sceneSDF(vec3 p) {
                 vec3 localP = p - node.param1.xyz;
                 float d = sdTriPrism(localP, vec2(node.param2.x, node.param2.y));
                 resultStack[rs++] = EvalResult(d, index);
-            } else {
+            } else if (type == TORUS) {
+                float d = sdTorus(p - node.param1.xyz, node.param2.xy);  // param1 = center, param2 = (R, r)
+                resultStack[rs++] = EvalResult(d, index);
+            } else if (type == CYLINDER) {
+                float d = sdCylinder(p - node.param1.xyz, node.param2.x, node.param2.y); // param2.x = height, y = radius
+                resultStack[rs++] = EvalResult(d, index);
+            } else if (type == CONE) {
+                float d = sdCone(p - node.param1.xyz, node.param2.xy, node.param2.z); // x = height, y = radius
+                resultStack[rs++] = EvalResult(d, index);
+            } else if (type == CAPSULE) {
+                float d = sdCapsule(p, node.param1.xyz, node.param2.xyz, node.param2.w); // from param1 to param2.xyz
+                resultStack[rs++] = EvalResult(d, index);
+            }
+            else {
                 // Push operator marker and children
                 if (ns + 3 <= MAX_STACK) {
                     nodeStack[ns++] = -index - 1; 
@@ -177,13 +226,13 @@ void main() {
         if (t > maxDist) break;
     }
 
-    vec3 color = vec3(0.53f, 0.81f, 0.92f);
+    vec3 color = vec3(1.0f, 1.0f, 1.0f);
     if (d < epsilon) {
         vec3 hit = ro + t * rd;
         vec3 normal = getNormal(hit);
         vec3 lightDir = normalize(vec3(0.5, 0.6, 1.0));
         float diff = max(dot(normal, lightDir), 0.0);
-        vec3 baseColor = nodes[hitIndex].color; // Replace with your object's color if needed
+        vec3 baseColor = nodes[hitIndex].color;
         vec3 diffuse = vec3(0.0);
 
         for (int i = 0; i < numLights; ++i) {

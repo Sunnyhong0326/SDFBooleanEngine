@@ -1,47 +1,54 @@
-#include "ui/CSGAppUI.h"
-#include "ui/CSGAppState.h" // Your application logic
+#include "ui/CSGAppState.hpp"
+#include "core/MeshUtils.hpp"
 
-#include <imgui.h>
 
-CSGAppUI::CSGAppUI(CSGAppState& state) : state_(state) {
-    strncpy(meshSavePath_, "output/mesh.ply", sizeof(meshSavePath_));
+void CSGAppState::loadCSGFromJSON(const std::string& path) {
+    if (!csgTree || !sdfScene) return;
+    csgTree->loadNodesFromJson(path);
+    sdfScene->uploadScene(csgTree->getNodes());
+    sdfScene->setupCSGTreeAABB(csgTree);
+    loadJson = true;
 }
 
-void CSGAppUI::draw() {
-    ImGui::Begin("CSG SDF Controller");
+void CSGAppState::requestExtractMeshAsync() {
+    if (!loadJson || isExtracting || !marchingCubes || !csgTree || !sdfScene) return;
 
-    drawLoadCSGSection();
-    drawExtractMeshSection();
-    drawSaveMeshSection();
-    ImGui::Separator();
-    drawVisualizationToggles();
+    isExtracting = true;
+    hasExtracted = false;
 
-    ImGui::End();
-}
+    extractThread = std::thread([this]() {
+        int rootIndex = csgTree->getNumNodes() - 1;
+        AABB bbox = csgTree->computeAABB(rootIndex);
+        auto grid = marchingCubes->sampleGrid(csgTree, rootIndex, bbox, gridResolution);
+        auto tris = marchingCubes->run(grid, 0.0f);
 
-void CSGAppUI::drawLoadCSGSection() {
-    if (ImGui::Button("Load CSG JSON")) {
-        std::string path = openFileDialog(".json"); // Implement this yourself
-        if (!path.empty()) {
-            state_.loadCSGFromJSON(path);
+        {
+            std::lock_guard<std::mutex> lock(meshMutex);
+            extractedTris = std::move(tris);
         }
+
+        isExtracting = false;
+        hasExtracted = true;
+    });
+    onMeshExtracted = [this]() {
+        std::lock_guard<std::mutex> lock(meshMutex);
+        sdfScene->uploadMesh(extractedTris);
+        std::cout << "Uploading extracted mesh, triangle count: " << extractedTris.size() << std::endl;
+    };
+    //sdfScene->setupMCVoxel(grid);
+    /*std::cout << "triangle count" << extractedTris.size() << std::endl;
+    sdfScene->uploadMesh(extractedTris);*/
+}
+
+void CSGAppState::joinBackgroundThread() {
+    if (extractThread.joinable()) {
+        extractThread.join();
     }
 }
 
-void CSGAppUI::drawExtractMeshSection() {
-    if (ImGui::Button("Extract Mesh (Marching Cubes)")) {
-        state_.extractMeshFromCSG();
+void CSGAppState::saveMeshToPLY(const std::string& path) {
+    std::lock_guard<std::mutex> lock(meshMutex);
+    if (!extractedTris.empty()) {
+        exportToPLY(path, extractedTris);
     }
-}
-
-void CSGAppUI::drawSaveMeshSection() {
-    ImGui::InputText("Mesh Save Path", meshSavePath_, IM_ARRAYSIZE(meshSavePath_));
-    if (ImGui::Button("Save Mesh to .ply")) {
-        state_.saveMeshToPLY(meshSavePath_);
-    }
-}
-
-void CSGAppUI::drawVisualizationToggles() {
-    ImGui::Checkbox("Show CSG AABB Wireframe", &state_.showAABB);
-    ImGui::Checkbox("Render Mesh (instead of Raymarch)", &state_.useMeshRenderer);
 }

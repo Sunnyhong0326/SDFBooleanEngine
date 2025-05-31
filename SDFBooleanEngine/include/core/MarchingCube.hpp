@@ -19,6 +19,7 @@ struct GridCell {
 
 struct Triangle {
     glm::vec3 v0, v1, v2;
+    glm::vec3 normal;
 };
 
 
@@ -333,7 +334,7 @@ public:
     };
 
     std::vector<Triangle> run(const std::vector<GridCell>& grid, float isoLevel);
-    std::vector<GridCell> sampleGrid(const std::unique_ptr<CSGTree>& tree, int rootIdx, const AABB& box, glm::ivec3 resolution);
+    std::vector<GridCell> sampleGrid(CSGTree* tree, int rootIdx, const AABB& box, glm::ivec3 resolution);
 private:
     glm::vec3 interpolateVertex(float iso, const glm::vec3& p1, const glm::vec3& p2, float val1, float val2);
 

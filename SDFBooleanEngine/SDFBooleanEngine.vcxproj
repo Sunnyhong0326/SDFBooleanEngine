@@ -132,7 +132,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\glfw\lib-vc2019</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;Comdlg32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /E "$(ProjectDir)shaders\*" "$(OutDir)shaders\"
@@ -155,7 +155,7 @@ xcopy /Y /E "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\glfw\lib-vc2019</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;Comdlg32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /E "$(ProjectDir)shaders\*" "$(OutDir)shaders\"
@@ -163,6 +163,7 @@ xcopy /Y /E "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\core\FileDialog.hpp" />
     <ClInclude Include="include\core\MarchingCube.hpp" />
     <ClInclude Include="include\core\MeshUtils.hpp" />
     <ClInclude Include="include\rendering\Camera.hpp" />
@@ -170,6 +171,8 @@ xcopy /Y /E "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     <ClInclude Include="include\sdf\CSGTree.hpp" />
     <ClInclude Include="include\sdf\SDFNode.hpp" />
     <ClInclude Include="include\sdf\SDFSceneGL.hpp" />
+    <ClInclude Include="include\ui\CSGAppState.hpp" />
+    <ClInclude Include="include\ui\CSGAppUI.hpp" />
     <ClInclude Include="libs\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="libs\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="libs\imgui\imconfig.h" />
@@ -195,10 +198,14 @@ xcopy /Y /E "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     <ClCompile Include="src\rendering\Shader.cpp" />
     <ClCompile Include="src\sdf\CSGTree.cpp" />
     <ClCompile Include="src\sdf\SDFSceneGL.cpp" />
+    <ClCompile Include="src\ui\CSGAppState.cpp" />
+    <ClCompile Include="src\ui\CSGAppUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\aabb.frag" />
     <None Include="shaders\aabb.vert" />
+    <None Include="shaders\mesh.frag" />
+    <None Include="shaders\mesh.vert" />
     <None Include="shaders\raymarch.frag" />
     <None Include="shaders\raymarch.vert" />
   </ItemGroup>
