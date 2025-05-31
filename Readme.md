@@ -1,6 +1,8 @@
 # SDFBooleanEngine
 This is a project for learning Constructive Solid Geometry (CSG)
 
+
+![](assets/teaser.png)
 ## Usage
 For basic usage, you can refer to [basic usage document](docs/basic_usage.md) to create your own 3D assets!
 

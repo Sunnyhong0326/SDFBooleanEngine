@@ -10,6 +10,10 @@ Each node has:
   - 1 = BOX
   - 2 = PLANE
   - 3 = TRI_PRISM
+  - 4 = TORUS
+  - 5 = CYLINDER
+  - 6 = CONE
+  - 7 = CAPSULE 
   - 10 = UNION
   - 11 = INTERSECT
   - 12 = SUBTRACT
