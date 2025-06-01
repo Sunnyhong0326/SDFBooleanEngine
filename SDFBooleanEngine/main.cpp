@@ -145,7 +145,6 @@ int main() {
         appUI.draw();
 
         if (appState.hasExtracted && appState.onMeshExtracted) {
-            std::cout << "upload" << std::endl;
             appState.onMeshExtracted();
             appState.onMeshExtracted = nullptr;
             appState.hasExtracted = false;

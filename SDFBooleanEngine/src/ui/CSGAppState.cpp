@@ -18,7 +18,6 @@ void CSGAppState::requestExtractMeshAsync() {
     hasExtracted = false;
 
     extractThread = std::thread([this]() {
-        std::cout << "request extract" << std::endl;
         int rootIndex = csgTree->getNumNodes() - 1;
         AABB bbox = csgTree->computeAABB(rootIndex);
         auto grid = marchingCubes->sampleGrid(csgTree, rootIndex, bbox, gridResolution);
