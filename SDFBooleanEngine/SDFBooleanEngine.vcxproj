@@ -117,7 +117,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\glfw\lib-vc2019</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;Comdlg32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

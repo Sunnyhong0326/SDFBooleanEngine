@@ -13,10 +13,12 @@ void CSGAppState::loadCSGFromJSON(const std::string& path) {
 void CSGAppState::requestExtractMeshAsync() {
     if (!loadJson || isExtracting || !marchingCubes || !csgTree || !sdfScene) return;
 
+    
     isExtracting = true;
     hasExtracted = false;
 
     extractThread = std::thread([this]() {
+        std::cout << "request extract" << std::endl;
         int rootIndex = csgTree->getNumNodes() - 1;
         AABB bbox = csgTree->computeAABB(rootIndex);
         auto grid = marchingCubes->sampleGrid(csgTree, rootIndex, bbox, gridResolution);
@@ -30,11 +32,13 @@ void CSGAppState::requestExtractMeshAsync() {
         isExtracting = false;
         hasExtracted = true;
     });
-    onMeshExtracted = [this]() {
-        std::lock_guard<std::mutex> lock(meshMutex);
-        sdfScene->uploadMesh(extractedTris);
-        std::cout << "Uploading extracted mesh, triangle count: " << extractedTris.size() << std::endl;
-    };
+    if (!onMeshExtracted) {
+        onMeshExtracted = [this]() {
+            std::lock_guard<std::mutex> lock(meshMutex);
+            sdfScene->uploadMesh(extractedTris);
+            std::cout << "Uploading extracted mesh, triangle count: " << extractedTris.size() << std::endl;
+        };
+    }
     //sdfScene->setupMCVoxel(grid);
     /*std::cout << "triangle count" << extractedTris.size() << std::endl;
     sdfScene->uploadMesh(extractedTris);*/
