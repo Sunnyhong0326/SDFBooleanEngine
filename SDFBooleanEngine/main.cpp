@@ -147,7 +147,6 @@ int main() {
         if (appState.hasExtracted && appState.onMeshExtracted) {
             appState.onMeshExtracted();
             appState.onMeshExtracted = nullptr;
-            appState.hasExtracted = false;
             appState.joinBackgroundThread();
         }
 

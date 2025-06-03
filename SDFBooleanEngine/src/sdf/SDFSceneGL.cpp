@@ -186,7 +186,9 @@ void SDFSceneGL::setMeshUniforms(GLuint shaderID, const glm::mat4& viewProjMat) 
 }
 
 void SDFSceneGL::renderMesh() {
+    //glDisable(GL_CULL_FACE);
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    //glEnable(GL_CULL_FACE);
     glBindVertexArray(0);
 }
